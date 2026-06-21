@@ -6,32 +6,32 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="造句" />
-  <meta name="theme-color" content="#0f0e0b" />
+  <meta name="theme-color" content="#efe7d6" />
   <title>造句 · Mandarin Production</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Noto+Serif:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     [data-theme="ink"] {
-      --bg:              #0f0e0b;
-      --surface:         #1a1915;
-      --surface-raised:  #22201a;
-      --border:          #2a2920;
-      --text-primary:    #f0ece4;
-      --text-secondary:  #7a7570;
-      --text-tertiary:   #4a4a44;
+      --bg:              #efe7d6;
+      --surface:         #f7f1e3;
+      --surface-raised:  #ece3cf;
+      --border:          #ddd2ba;
+      --text-primary:    #241f17;
+      --text-secondary:  #8a8170;
+      --text-tertiary:   #a89e88;
       --accent:          #4caf8a;
-      --accent-dim:      #1a2e24;
-      --accent-text:     #8cc4b0;
+      --accent-dim:      rgba(76,175,138,0.18);
+      --accent-text:     #2c7a58;
       --accent2:         #e8a838;
-      --accent2-dim:     #2e2210;
-      --accent2-text:    #e8c87a;
-      --success:         #1a2e24;
+      --accent2-dim:     rgba(232,168,56,0.18);
+      --accent2-text:    #a9761a;
+      --success:         rgba(76,175,138,0.15);
       --success-border:  #4caf8a;
-      --success-text:    #8cc4b0;
-      --danger:          #2e1a1a;
-      --danger-border:   #e05c5c;
-      --danger-text:     #e8a8a8;
+      --success-text:    #2c7a58;
+      --danger:          rgba(165,30,23,0.1);
+      --danger-border:   #a51e17;
+      --danger-text:     #8f1812;
       --font-heading:    'Libre Baskerville', Georgia, serif;
       --font-body:       'Noto Serif', Georgia, serif;
       --font-chinese:    'Noto Serif SC', 'Noto Serif', serif;
@@ -68,7 +68,7 @@
 
     .btn-cta {
       background: var(--accent2);
-      color: #0D0D0F;
+      color: var(--text-primary);
       border-radius: 8px;
       padding: 14px 24px;
       font-size: 16px;
@@ -485,40 +485,138 @@ function sentenceLine(text, targetFull, revealed, wrapStyle, targetStyle) {
 // ─── SCREENS ──────────────────────────────────────────────────────────────────
 function homeHTML() {
   const available = CORPUS.filter(e => state.filter.includes(e.hsk)).length;
-  const records = Object.values(state.progress);
-  const totalAnswered = records.reduce((s, r) => s + r.correct + r.missed, 0);
-  const totalCorrect  = records.reduce((s, r) => s + r.correct, 0);
-  const totalAttempted = records.filter(r => r.correct + r.missed > 0).length;
-  const pct = totalAnswered > 0 ? Math.round(totalCorrect / totalAnswered * 100) : 0;
+
+  const hskCols = [1,2,3].map(l => {
+    const active = state.filter.includes(l);
+    const pillStyle = active
+      ? `background:var(--accent);border:1.5px solid var(--accent)`
+      : `background:var(--bg);border:1.5px solid var(--border)`;
+    return `<button data-action="toggleHsk" data-level="${l}"
+      style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;background:none;border:none">
+      <span style="font-size:15px;font-weight:600;color:${active ? 'var(--text-primary)' : 'var(--text-secondary)'}">HSK ${l}</span>
+      <div style="width:100%;height:30px;border-radius:11px;${pillStyle}"></div>
+    </button>`;
+  }).join('');
+
+  const lenCols = [20,40,'all'].map(o => {
+    const active = state.sessionLength === o;
+    const label = o === 'all' ? 'All' : o;
+    const pillStyle = active
+      ? `background:var(--accent2);border:1.5px solid var(--accent2)`
+      : `background:var(--bg);border:1.5px solid var(--border)`;
+    return `<button data-action="setLength" data-length="${o}"
+      style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;background:none;border:none">
+      <span style="font-size:15px;font-weight:600;color:${active ? 'var(--text-primary)' : 'var(--text-secondary)'}">${label}</span>
+      <div style="width:100%;height:30px;border-radius:11px;${pillStyle}"></div>
+    </button>`;
+  }).join('');
+
+  const cardStyle = `background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px`;
 
   return `
-    <div style="display:flex;flex-direction:column;flex:1;padding:64px 0 48px">
-      <div style="text-align:center;margin-bottom:52px">
-        <h1 style="font-family:var(--font-heading);font-size:52px;font-weight:700;line-height:1;margin-bottom:10px">造句</h1>
-        <p style="color:var(--text-secondary);font-size:14px">sentence production · HSK 1–3</p>
+    <div style="display:flex;flex-direction:column;flex:1;padding-bottom:40px">
+
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:220px;padding:40px 0 20px">
+        <div style="position:absolute;font-family:var(--font-chinese);font-weight:900;font-size:200px;line-height:1;color:rgba(165,30,23,0.07);pointer-events:none;user-select:none;transform:translateY(-10px)">造</div>
+        <div style="font-family:var(--font-chinese);font-weight:900;font-size:88px;line-height:1;color:var(--text-primary);position:relative">造句</div>
+        <div style="font-size:11px;letter-spacing:4px;color:var(--text-secondary);margin-top:14px;text-transform:uppercase;position:relative">Sentence Production</div>
       </div>
 
-      <div style="margin-bottom:28px">
-        <div class="sec-label">HSK Level</div>
-        <div style="display:flex;gap:8px">
-          ${[1,2,3].map(l => `<button class="chip${state.filter.includes(l) ? ' active' : ''}" data-action="toggleHsk" data-level="${l}">HSK ${l}</button>`).join('')}
+      <div style="padding:0 20px">
+        <div style="${cardStyle};margin-bottom:12px">
+          <div style="font-size:11px;letter-spacing:2px;font-weight:600;color:var(--text-tertiary);margin-bottom:12px">HSK LEVEL</div>
+          <div style="display:flex;gap:12px">${hskCols}</div>
+        </div>
+
+        <div style="${cardStyle};margin-bottom:12px">
+          <div style="font-size:11px;letter-spacing:2px;font-weight:600;color:var(--text-tertiary);margin-bottom:12px">SESSION LENGTH</div>
+          <div style="display:flex;gap:12px">${lenCols}</div>
+        </div>
+
+        <button class="btn-cta" data-action="start"${available === 0 ? ' disabled' : ''} style="border-radius:18px;font-size:20px;font-weight:700;padding:17px;margin-bottom:12px">开始 Start</button>
+
+        <div style="display:flex;gap:12px">
+          <button data-action="navStats" style="flex:1;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:center;padding:16px 0">
+            <div style="display:flex;align-items:flex-end;gap:3px;height:20px">
+              <div style="width:5px;height:8px;border-radius:2px;background:var(--text-secondary)"></div>
+              <div style="width:5px;height:13px;border-radius:2px;background:var(--text-secondary)"></div>
+              <div style="width:5px;height:20px;border-radius:2px;background:var(--text-secondary)"></div>
+            </div>
+          </button>
+          <button data-action="navSentences" style="flex:2;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:16px 18px">
+            <span style="font-size:16px;color:var(--text-primary)">All sentences</span>
+            <span style="font-size:18px;color:var(--text-secondary)">→</span>
+          </button>
         </div>
       </div>
+    </div>`;
+}
 
-      <div style="margin-bottom:28px">
-        <div class="sec-label">Session Length</div>
-        <div class="segmented">
-          ${[20,40,'all'].map(o => `<button class="seg-btn${state.sessionLength === o ? ' active' : ''}" data-action="setLength" data-length="${o}">${o === 'all' ? 'All' : o}</button>`).join('')}
+function statsHTML() {
+  const records = Object.entries(state.progress);
+  const totalCorrect  = records.reduce((s, [,r]) => s + r.correct, 0);
+  const totalAnswered = records.reduce((s, [,r]) => s + r.correct + r.missed, 0);
+  const pct = totalAnswered > 0 ? Math.round(totalCorrect / totalAnswered * 100) : null;
+
+  const byHsk = [1,2,3].map(level => {
+    const ids = CORPUS.filter(e => e.hsk === level).map(e => e.id);
+    const recs = ids.map(id => state.progress[id]).filter(Boolean);
+    const c = recs.reduce((s,r) => s + r.correct, 0);
+    const a = recs.reduce((s,r) => s + r.correct + r.missed, 0);
+    return a > 0 ? { level, c, a, pct: Math.round(c/a*100) } : null;
+  }).filter(Boolean);
+
+  return `
+    <div style="display:flex;flex-direction:column;flex:1;padding:20px 20px 48px">
+      <button data-action="back" style="color:var(--text-secondary);font-size:16px;text-align:left;padding:8px 0;margin-bottom:8px">← Back</button>
+      <h1 style="font-family:var(--font-heading);font-size:28px;font-weight:700;margin-bottom:32px">Stats</h1>
+
+      ${pct === null ? `
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+          <p style="color:var(--text-secondary);text-align:center;font-size:15px">No sessions yet.<br>Tap <em>开始 Start</em> to begin.</p>
+        </div>` : `
+        <div style="text-align:center;margin-bottom:32px">
+          <div style="font-size:64px;font-weight:700;color:var(--accent2);line-height:1">${pct}%</div>
+          <div style="color:var(--text-secondary);font-size:14px;margin-top:6px">${totalCorrect} correct of ${totalAnswered} attempts</div>
         </div>
-      </div>
+        ${byHsk.length ? `<div class="card">
+          ${byHsk.map((b,i) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;${i>0?'padding-top:12px;margin-top:12px;border-top:1px solid var(--border)':''}">
+              <span style="color:var(--text-secondary);font-size:14px">HSK ${b.level}</span>
+              <span style="color:var(--text-primary);font-size:14px;font-weight:500">${b.c}/${b.a} · ${b.pct}%</span>
+            </div>`).join('')}
+        </div>` : ''}
+      `}
+    </div>`;
+}
 
-      <p style="color:var(--text-secondary);font-size:14px;margin-bottom:32px">
-        ${available} sentence${available !== 1 ? 's' : ''} available
-      </p>
+function sentencesHTML() {
+  const statusDot = (id) => {
+    const r = state.progress[id];
+    if (!r || (r.correct + r.missed) === 0) return `<div style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>`;
+    if (r.streak >= 3) return `<div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>`;
+    return `<div style="width:8px;height:8px;border-radius:50%;background:var(--accent2)"></div>`;
+  };
 
-      <button class="btn-cta" data-action="start"${available === 0 ? ' disabled' : ''}>开始 Start</button>
+  const rows = [1,2,3].map(level => {
+    const entries = CORPUS.filter(e => e.hsk === level);
+    return `
+      <div style="font-size:11px;letter-spacing:2px;font-weight:600;color:var(--text-tertiary);margin:20px 0 8px;${level===1?'margin-top:0':''}">HSK ${level}</div>
+      ${entries.map(e => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-family:var(--font-chinese);font-size:18px;color:var(--text-primary)">${esc(e.target)}</span>
+            <span style="color:var(--text-secondary);font-size:14px"> · ${esc(e.english)}</span>
+          </div>
+          ${statusDot(e.id)}
+        </div>`).join('')}`;
+  }).join('');
 
-      ${totalAnswered > 0 ? `<p style="color:var(--text-tertiary);font-size:12px;text-align:center;margin-top:auto;padding-top:32px">${totalAttempted} attempted · ${pct}% correct all time</p>` : ''}
+  return `
+    <div style="display:flex;flex-direction:column;flex:1;padding:20px 20px 48px;overflow-y:auto">
+      <button data-action="back" style="color:var(--text-secondary);font-size:16px;text-align:left;padding:8px 0;margin-bottom:8px">← Back</button>
+      <h1 style="font-family:var(--font-heading);font-size:28px;font-weight:700;margin-bottom:24px">All Sentences</h1>
+      ${rows}
     </div>`;
 }
 
@@ -628,9 +726,11 @@ function summaryHTML() {
 const root = document.getElementById('root');
 
 function render() {
-  if (state.screen === 'home')         root.innerHTML = homeHTML();
-  else if (state.screen === 'study')   root.innerHTML = studyHTML();
-  else if (state.screen === 'summary') root.innerHTML = summaryHTML();
+  if (state.screen === 'home')             root.innerHTML = homeHTML();
+  else if (state.screen === 'study')       root.innerHTML = studyHTML();
+  else if (state.screen === 'summary')     root.innerHTML = summaryHTML();
+  else if (state.screen === 'stats')       root.innerHTML = statsHTML();
+  else if (state.screen === 'sentences')   root.innerHTML = sentencesHTML();
 
   if (state.screen === 'study' && !state.revealed) {
     const inp = root.querySelector('.input-field');
@@ -718,6 +818,21 @@ function dispatch(action, data = {}) {
       break;
     }
     case 'home': {
+      state.screen = 'home';
+      render();
+      break;
+    }
+    case 'navStats': {
+      state.screen = 'stats';
+      render();
+      break;
+    }
+    case 'navSentences': {
+      state.screen = 'sentences';
+      render();
+      break;
+    }
+    case 'back': {
       state.screen = 'home';
       render();
       break;

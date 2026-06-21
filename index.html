@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-Hans" data-theme="ink">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="造句" />
+  <meta name="theme-color" content="#0D0D0F" />
+  <title>造句 · Mandarin Production</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Outfit:wght@400;500;600&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    [data-theme="ink"] {
+      --bg:              #0D0D0F;
+      --surface:         #141418;
+      --surface-raised:  #1C1C22;
+      --border:          #2A2A33;
+      --text-primary:    #EEEEF0;
+      --text-secondary:  #72727A;
+      --text-tertiary:   #44444C;
+      --accent:          #4CAF8A;
+      --accent-dim:      #1A3328;
+      --accent-text:     #A8D5C2;
+      --accent2:         #E8A838;
+      --accent2-dim:     #332510;
+      --accent2-text:    #F5D48A;
+      --success:         #1A3328;
+      --success-border:  #4CAF8A;
+      --success-text:    #A8D5C2;
+      --danger:          #3D1A1A;
+      --danger-border:   #C0504A;
+      --danger-text:     #E8A8A8;
+      --font-heading:    'Libre Baskerville', Georgia, serif;
+      --font-body:       'Outfit', system-ui, sans-serif;
+      --font-chinese:    'Noto Serif SC', 'Noto Serif', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+    }
+
+    #root {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100dvh;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: var(--font-body);
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-cta {
+      background: var(--accent2);
+      color: #0D0D0F;
+      border-radius: 8px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+    }
+    .btn-cta:not(:disabled):active { opacity: 0.85; }
+
+    .btn-outline {
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .input-field {
+      background: var(--surface-raised);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      padding: 12px 16px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .input-field:focus { border-color: var(--accent); }
+    .input-field::placeholder { color: var(--text-tertiary); }
+
+    .chip {
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      transition: all 0.15s;
+    }
+    .chip.active {
+      border-color: var(--accent);
+      color: var(--accent-text);
+      background: var(--accent-dim);
+    }
+
+    .segmented {
+      display: flex;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .seg-btn {
+      flex: 1;
+      border-radius: 5px;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .seg-btn.active {
+      background: var(--accent2-dim);
+      color: var(--accent2-text);
+      border: 1.5px solid var(--accent2);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 4em;
+      border-bottom: 1.5px solid rgba(76, 175, 138, 0.5);
+      vertical-align: bottom;
+      margin-bottom: 2px;
+    }
+
+    .result-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font-body);
+    }
+    .result-chip.ok {
+      background: var(--success);
+      border: 1.5px solid var(--success-border);
+      color: var(--success-text);
+    }
+    .result-chip.bad {
+      background: var(--danger);
+      border: 1.5px solid var(--danger-border);
+      color: var(--danger-text);
+    }
+
+    .grade-row { display: flex; gap: 8px; }
+    .grade-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: opacity 0.1s;
+    }
+    .grade-btn.g-correct {
+      border: 1.5px solid var(--success-border);
+      color: var(--success-text);
+      background: transparent;
+    }
+    .grade-btn.g-correct.sel { background: var(--success); }
+    .grade-btn.g-wrong {
+      border: 1.5px solid var(--danger-border);
+      color: var(--danger-text);
+      background: transparent;
+    }
+    .grade-btn.g-wrong.sel { background: var(--danger); }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    .sec-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .fade-in { animation: fadeIn 0.15s ease-out; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── CORPUS ───────────────────────────────────────────────────────────────────
+const CORPUS = [
+  // ── HSK 1 ──────────────────────────────────────────────────────────────────
+  {
+    id: "s001",
+    sentence: "我今天很高兴。",
+    blanked: "我今天很___。",
+    target: "高兴",
+    targetPinyin: "gaoxing",
+    targetPinyinFull: "gāoxìng",
+    pinyin: "wǒ jīntiān hěn ___ 。",
+    pinyinFull: "wǒ jīntiān hěn gāoxìng 。",
+    english: "I'm very happy today.",
+    hsk: 1, note: null, tags: ["emotion", "daily-life"],
+  },
+  {
+    id: "s002",
+    sentence: "我很喜欢吃中国菜。",
+    blanked: "我很___吃中国菜。",
+    target: "喜欢",
+    targetPinyin: "xihuan",
+    targetPinyinFull: "xǐhuān",
+    pinyin: "wǒ hěn ___ chī zhōngguó cài 。",
+    pinyinFull: "wǒ hěn xǐhuān chī zhōngguó cài 。",
+    english: "I really like eating Chinese food.",
+    hsk: 1,
+    note: "喜欢 = ongoing preference. 想 = want right now.",
+    tags: ["food", "daily-life"],
+  },
+  {
+    id: "s003",
+    sentence: "我昨天在超市买了很多东西。",
+    blanked: "我昨天在超市___了很多东西。",
+    target: "买",
+    targetPinyin: "mai",
+    targetPinyinFull: "mǎi",
+    pinyin: "wǒ zuótiān zài chāoshì ___ le hěnduō dōngxi 。",
+    pinyinFull: "wǒ zuótiān zài chāoshì mǎi le hěnduō dōngxi 。",
+    english: "I bought a lot of things at the supermarket yesterday.",
+    hsk: 1,
+    note: "买 = buy. 卖 = sell. Opposite directions — easy to confuse.",
+    tags: ["shopping"],
+  },
+  {
+    id: "s004",
+    sentence: "这个菜很好吃。",
+    blanked: "这个菜很___。",
+    target: "好吃",
+    targetPinyin: "haochi",
+    targetPinyinFull: "hǎochī",
+    pinyin: "zhège cài hěn ___ 。",
+    pinyinFull: "zhège cài hěn hǎochī 。",
+    english: "This dish is delicious.",
+    hsk: 1, note: null, tags: ["food"],
+  },
+  {
+    id: "s005",
+    sentence: "我每天早上喝牛奶。",
+    blanked: "我每天早上___牛奶。",
+    target: "喝",
+    targetPinyin: "he",
+    targetPinyinFull: "hē",
+    pinyin: "wǒ měitiān zǎoshang ___ niúnǎi 。",
+    pinyinFull: "wǒ měitiān zǎoshang hē niúnǎi 。",
+    english: "I drink milk every morning.",
+    hsk: 1, note: null, tags: ["food", "daily-routine"],
+  },
+  {
+    id: "s006",
+    sentence: "他用中文说了很多话。",
+    blanked: "他用中文___了很多话。",
+    target: "说",
+    targetPinyin: "shuo",
+    targetPinyinFull: "shuō",
+    pinyin: "tā yòng zhōngwén ___ le hěnduō huà 。",
+    pinyinFull: "tā yòng zhōngwén shuō le hěnduō huà 。",
+    english: "He said a lot in Chinese.",
+    hsk: 1, note: null, tags: ["social"],
+  },
+  {
+    id: "s007",
+    sentence: "你认识那个人吗？",
+    blanked: "你___那个人吗？",
+    target: "认识",
+    targetPinyin: "renshi",
+    targetPinyinFull: "rènshi",
+    pinyin: "nǐ ___ nàge rén ma ？",
+    pinyinFull: "nǐ rènshi nàge rén ma ？",
+    english: "Do you know that person?",
+    hsk: 1,
+    note: "认识 = know (a person). 知道 = know (a fact).",
+    tags: ["social"],
+  },
+
+  // ── HSK 2 ──────────────────────────────────────────────────────────────────
+  {
+    id: "s008",
+    sentence: "这里不可以抽烟。",
+    blanked: "这里不___抽烟。",
+    target: "可以",
+    targetPinyin: "keyi",
+    targetPinyinFull: "kěyǐ",
+    pinyin: "zhèlǐ bù ___ chōuyān 。",
+    pinyinFull: "zhèlǐ bù kěyǐ chōuyān 。",
+    english: "You can't smoke here.",
+    hsk: 2,
+    note: "可以 = permitted. 能 = physically able. Prohibition uses 不可以.",
+    tags: ["daily-life"],
+  },
+  {
+    id: "s009",
+    sentence: "谢谢你帮助我。",
+    blanked: "谢谢你___我。",
+    target: "帮助",
+    targetPinyin: "bangzhu",
+    targetPinyinFull: "bāngzhù",
+    pinyin: "xièxie nǐ ___ wǒ 。",
+    pinyinFull: "xièxie nǐ bāngzhù wǒ 。",
+    english: "Thank you for helping me.",
+    hsk: 2, note: null, tags: ["social"],
+  },
+  {
+    id: "s010",
+    sentence: "我觉得这个主意很好。",
+    blanked: "我___这个主意很好。",
+    target: "觉得",
+    targetPinyin: "juede",
+    targetPinyinFull: "juéde",
+    pinyin: "wǒ ___ zhège zhǔyi hěn hǎo 。",
+    pinyinFull: "wǒ juéde zhège zhǔyi hěn hǎo 。",
+    english: "I think this idea is great.",
+    hsk: 2,
+    note: "觉得 = feel/think (personal). 认为 = consider/believe (stronger stance).",
+    tags: ["daily-life"],
+  },
+  {
+    id: "s011",
+    sentence: "你需要多少钱？",
+    blanked: "你___多少钱？",
+    target: "需要",
+    targetPinyin: "xuyao",
+    targetPinyinFull: "xūyào",
+    pinyin: "nǐ ___ duōshǎo qián ？",
+    pinyinFull: "nǐ xūyào duōshǎo qián ？",
+    english: "How much money do you need?",
+    hsk: 2, note: null, tags: ["shopping", "money"],
+  },
+  {
+    id: "s012",
+    sentence: "我给你打电话吧。",
+    blanked: "我给你___吧。",
+    target: "打电话",
+    targetPinyin: "dadianhua",
+    targetPinyinFull: "dǎ diànhuà",
+    pinyin: "wǒ gěi nǐ ___ ba 。",
+    pinyinFull: "wǒ gěi nǐ dǎ diànhuà ba 。",
+    english: "I'll give you a call.",
+    hsk: 2,
+    note: "打电话 = make a phone call. Fixed collocation — 打 doesn't change.",
+    tags: ["social", "daily-life"],
+  },
+  {
+    id: "s013",
+    sentence: "我在路上看见了他。",
+    blanked: "我在路上___了他。",
+    target: "看见",
+    targetPinyin: "kanjian",
+    targetPinyinFull: "kànjiàn",
+    pinyin: "wǒ zài lùshang ___ le tā 。",
+    pinyinFull: "wǒ zài lùshang kànjiàn le tā 。",
+    english: "I spotted him on the street.",
+    hsk: 2,
+    note: "看见 = to catch sight of (result). 看 = to look (action).",
+    tags: ["daily-life"],
+  },
+
+  // ── HSK 3 ──────────────────────────────────────────────────────────────────
+  {
+    id: "s014",
+    sentence: "你不用担心这件事。",
+    blanked: "你不用___这件事。",
+    target: "担心",
+    targetPinyin: "danxin",
+    targetPinyinFull: "dānxīn",
+    pinyin: "nǐ bùyòng ___ zhè jiàn shì 。",
+    pinyinFull: "nǐ bùyòng dānxīn zhè jiàn shì 。",
+    english: "You don't need to worry about this.",
+    hsk: 3, note: null, tags: ["emotion", "daily-life"],
+  },
+  {
+    id: "s015",
+    sentence: "住在这里很方便。",
+    blanked: "住在这里很___。",
+    target: "方便",
+    targetPinyin: "fangbian",
+    targetPinyinFull: "fāngbiàn",
+    pinyin: "zhù zài zhèlǐ hěn ___ 。",
+    pinyinFull: "zhù zài zhèlǐ hěn fāngbiàn 。",
+    english: "Living here is very convenient.",
+    hsk: 3, note: null, tags: ["home", "transport"],
+  },
+  {
+    id: "s016",
+    sentence: "这个问题我们一起解决吧。",
+    blanked: "这个问题我们一起___吧。",
+    target: "解决",
+    targetPinyin: "jiejue",
+    targetPinyinFull: "jiějué",
+    pinyin: "zhège wèntí wǒmen yīqǐ ___ ba 。",
+    pinyinFull: "zhège wèntí wǒmen yīqǐ jiějué ba 。",
+    english: "Let's solve this problem together.",
+    hsk: 3, note: null, tags: ["work", "study"],
+  },
+  {
+    id: "s017",
+    sentence: "他发现自己忘带钱包了。",
+    blanked: "他___自己忘带钱包了。",
+    target: "发现",
+    targetPinyin: "faxian",
+    targetPinyinFull: "fāxiàn",
+    pinyin: "tā ___ zìjǐ wàng dài qiánbāo le 。",
+    pinyinFull: "tā fāxiàn zìjǐ wàng dài qiánbāo le 。",
+    english: "He realized he'd forgotten his wallet.",
+    hsk: 3,
+    note: "发现 = discover/realize. 找到 = find (locate something).",
+    tags: ["daily-life"],
+  },
+  {
+    id: "s018",
+    sentence: "这件事有点儿麻烦。",
+    blanked: "这件事有点儿___。",
+    target: "麻烦",
+    targetPinyin: "mafan",
+    targetPinyinFull: "máfan",
+    pinyin: "zhè jiàn shì yǒudiǎnr ___ 。",
+    pinyinFull: "zhè jiàn shì yǒudiǎnr máfan 。",
+    english: "This matter is a bit troublesome.",
+    hsk: 3, note: null, tags: ["daily-life"],
+  },
+  {
+    id: "s019",
+    sentence: "你一定要好好学习。",
+    blanked: "你___要好好学习。",
+    target: "一定",
+    targetPinyin: "yiding",
+    targetPinyinFull: "yīdìng",
+    pinyin: "nǐ ___ yào hǎohǎo xuéxí 。",
+    pinyinFull: "nǐ yīdìng yào hǎohǎo xuéxí 。",
+    english: "You must study hard.",
+    hsk: 3,
+    note: "一定 = definitely/must (expectation). 必须 = must (obligation).",
+    tags: ["study", "school"],
+  },
+  {
+    id: "s020",
+    sentence: "我还没明白他说的意思。",
+    blanked: "我还没___他说的意思。",
+    target: "明白",
+    targetPinyin: "mingbai",
+    targetPinyinFull: "míngbai",
+    pinyin: "wǒ hái méi ___ tā shuō de yìsi 。",
+    pinyinFull: "wǒ hái méi míngbai tā shuō de yìsi 。",
+    english: "I still don't understand what he meant.",
+    hsk: 3,
+    note: "明白 = understand (meaning). 听懂 = understand (by hearing).",
+    tags: ["study", "social"],
+  },
+];
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+const PROGRESS_KEY = 'msc_progress_v1';
+const FILTER_KEY   = 'msc_filter_v1';
+const SESSION_KEY  = 'msc_session_v1';
+
+function loadProgress()      { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch { return {}; } }
+function saveProgress(p)     { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch {} }
+function loadFilter()        { try { return JSON.parse(localStorage.getItem(FILTER_KEY)) || [1, 2, 3]; } catch { return [1, 2, 3]; } }
+function saveFilter(f)       { try { localStorage.setItem(FILTER_KEY, JSON.stringify(f)); } catch {} }
+function loadSessionLength() { try { const v = localStorage.getItem(SESSION_KEY); return v === 'all' ? 'all' : (parseInt(v) || 20); } catch { return 20; } }
+function saveSessionLength(l){ try { localStorage.setItem(SESSION_KEY, String(l)); } catch {} }
+
+// ─── MATCHING ─────────────────────────────────────────────────────────────────
+function normalise(str) {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/v/g, 'u')
+    .replace(/[^a-z]/g, '');
+}
+
+function checkAnswer(input, entry) {
+  return normalise(input) === entry.targetPinyin || input.trim() === entry.target;
+}
+
+// ─── SESSION ──────────────────────────────────────────────────────────────────
+function getWeight(rec) {
+  if (!rec) return 3;
+  const { correct, missed, streak } = rec;
+  if (streak === 0 && missed > 0) return 4;
+  if (streak >= 3) return 1;
+  if (correct < 2 || streak === 1) return 3;
+  if (streak === 2) return 2;
+  return 2;
+}
+
+function buildSession(activeHsk, sessionLength, progress) {
+  const filtered = CORPUS.filter(e => activeHsk.includes(e.hsk));
+  const pool = [];
+  for (const entry of filtered) {
+    const w = getWeight(progress[entry.id]);
+    for (let i = 0; i < w; i++) pool.push(entry.id);
+  }
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const seen = new Set();
+  const queue = [];
+  for (const id of pool) { if (!seen.has(id)) { seen.add(id); queue.push(id); } }
+  const limit = sessionLength === 'all' ? queue.length : Math.min(sessionLength, queue.length);
+  return queue.slice(0, limit);
+}
+
+// ─── SENTENCE LINE ────────────────────────────────────────────────────────────
+function SentenceLine({ text, targetFull, revealed, style, targetStyle }) {
+  const parts = text.split('___');
+  return (
+    <span style={style}>
+      {parts[0]}
+      {revealed
+        ? <span style={targetStyle}>{targetFull}</span>
+        : <span className="blank" />
+      }
+      {parts[1] || ''}
+    </span>
+  );
+}
+
+// ─── HOME SCREEN ──────────────────────────────────────────────────────────────
+function HomeScreen({ onStart, filter, setFilter, sessionLength, setSessionLength, progress }) {
+  const available = CORPUS.filter(e => filter.includes(e.hsk)).length;
+  const records = Object.values(progress);
+  const totalAnswered = records.reduce((s, r) => s + r.correct + r.missed, 0);
+  const totalCorrect  = records.reduce((s, r) => s + r.correct, 0);
+  const totalAttempted = records.filter(r => r.correct + r.missed > 0).length;
+  const pct = totalAnswered > 0 ? Math.round(totalCorrect / totalAnswered * 100) : 0;
+
+  function toggleHsk(level) {
+    setFilter(f => {
+      if (f.includes(level)) return f.length === 1 ? f : f.filter(x => x !== level);
+      return [...f, level].sort();
+    });
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '64px 0 48px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 52 }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 52, fontWeight: 700, lineHeight: 1, marginBottom: 10 }}>
+          造句
+        </h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
+          sentence production · HSK 1–3
+        </p>
+      </div>
+
+      <div style={{ marginBottom: 28 }}>
+        <div className="sec-label">HSK Level</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[1, 2, 3].map(level => (
+            <button key={level} className={`chip ${filter.includes(level) ? 'active' : ''}`} onClick={() => toggleHsk(level)}>
+              HSK {level}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 28 }}>
+        <div className="sec-label">Session Length</div>
+        <div className="segmented">
+          {[20, 40, 'all'].map(opt => (
+            <button key={opt} className={`seg-btn ${sessionLength === opt ? 'active' : ''}`} onClick={() => setSessionLength(opt)}>
+              {opt === 'all' ? 'All' : opt}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 32 }}>
+        {available} sentence{available !== 1 ? 's' : ''} available
+      </p>
+
+      <button className="btn-cta" onClick={onStart} disabled={available === 0}>
+        开始 Start
+      </button>
+
+      {totalAnswered > 0 && (
+        <p style={{ color: 'var(--text-tertiary)', fontSize: 12, textAlign: 'center', marginTop: 'auto', paddingTop: 32 }}>
+          {totalAttempted} attempted · {pct}% correct all time
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── STUDY SCREEN ─────────────────────────────────────────────────────────────
+function StudyScreen({ queue, idx, onGrade }) {
+  const [input, setInput] = useState('');
+  const [checkedInput, setCheckedInput] = useState('');
+  const [revealed, setRevealed] = useState(false);
+  const [matchResult, setMatchResult] = useState(false);
+  const inputRef = useRef(null);
+
+  const entry = CORPUS.find(e => e.id === queue[idx]);
+
+  useEffect(() => {
+    setInput('');
+    setCheckedInput('');
+    setRevealed(false);
+    setMatchResult(false);
+    const t = setTimeout(() => inputRef.current?.focus(), 60);
+    return () => clearTimeout(t);
+  }, [idx, queue]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Enter' && revealed) {
+        e.preventDefault();
+        onGrade(entry.id, matchResult);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [revealed, matchResult, entry, onGrade]);
+
+  function handleCheck() {
+    if (!input.trim()) return;
+    const correct = checkAnswer(input, entry);
+    setCheckedInput(input);
+    setMatchResult(correct);
+    setRevealed(true);
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '20px 0 48px' }}>
+      <div style={{ textAlign: 'right', color: 'var(--text-tertiary)', fontSize: 13, fontWeight: 500, marginBottom: 20 }}>
+        {idx + 1} / {queue.length}
+      </div>
+
+      <div className="card">
+        {/* Pinyin line — primary */}
+        <div style={{ marginBottom: 10, lineHeight: 1.9 }}>
+          <SentenceLine
+            text={entry.pinyin}
+            targetFull={entry.targetPinyinFull}
+            revealed={revealed}
+            style={{ fontFamily: 'var(--font-body)', fontSize: 18, color: 'var(--text-primary)' }}
+            targetStyle={{ color: 'var(--accent)', fontWeight: 600 }}
+          />
+        </div>
+
+        {/* Hanzi line — secondary pre-reveal, primary post-reveal */}
+        <div style={{ marginBottom: 24, lineHeight: 1.6 }}>
+          <SentenceLine
+            text={entry.blanked}
+            targetFull={entry.target}
+            revealed={revealed}
+            style={{
+              fontFamily: 'var(--font-chinese)',
+              fontSize: 26,
+              color: revealed ? 'var(--text-primary)' : 'var(--text-secondary)',
+              transition: 'color 0.15s',
+            }}
+            targetStyle={{ color: 'var(--accent)', fontWeight: 700 }}
+          />
+        </div>
+
+        {!revealed ? (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              ref={inputRef}
+              className="input-field"
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && input.trim() && handleCheck()}
+              placeholder="pinyin · e.g. gaoxing"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck={false}
+              inputMode="text"
+            />
+            <button
+              className="btn-outline"
+              onClick={handleCheck}
+              disabled={!input.trim()}
+              style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              Check
+            </button>
+          </div>
+        ) : (
+          <div className="fade-in">
+            {/* English */}
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.5, marginBottom: entry.note ? 6 : 16 }}>
+              {entry.english}
+            </p>
+
+            {/* Usage note */}
+            {entry.note && (
+              <p style={{ color: 'var(--accent2-text)', fontSize: 13, fontStyle: 'italic', lineHeight: 1.5, marginBottom: 16 }}>
+                {entry.note}
+              </p>
+            )}
+
+            <div className="divider" />
+
+            {/* Result chip */}
+            <div style={{ marginBottom: 14 }}>
+              {matchResult ? (
+                <span className="result-chip ok">✓ {normalise(checkedInput)}</span>
+              ) : (
+                <span className="result-chip bad">✗ {checkedInput} → {entry.targetPinyin}</span>
+              )}
+            </div>
+
+            {/* Grade buttons */}
+            <div className="grade-row">
+              <button
+                className={`grade-btn g-correct ${matchResult ? 'sel' : ''}`}
+                onClick={() => onGrade(entry.id, true)}
+              >
+                ✓ 对了
+              </button>
+              <button
+                className={`grade-btn g-wrong ${!matchResult ? 'sel' : ''}`}
+                onClick={() => onGrade(entry.id, false)}
+              >
+                ✗ 错了
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── SUMMARY SCREEN ───────────────────────────────────────────────────────────
+function SummaryScreen({ sessionResults, onAgain, onHome }) {
+  const correct = sessionResults.filter(r => r.correct).length;
+  const total   = sessionResults.length;
+  const pct     = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  const breakdown = [1, 2, 3].map(level => {
+    const rows = sessionResults.filter(r => CORPUS.find(c => c.id === r.id)?.hsk === level);
+    if (!rows.length) return null;
+    return { level, correct: rows.filter(r => r.correct).length, total: rows.length };
+  }).filter(Boolean);
+
+  const scoreColor = pct >= 80 ? 'var(--accent)' : pct >= 55 ? 'var(--accent2)' : 'var(--text-primary)';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center', padding: '40px 0' }}>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <div style={{ fontFamily: 'var(--font-heading)', fontSize: 64, fontWeight: 700, lineHeight: 1, color: scoreColor, marginBottom: 8 }}>
+          {correct}/{total}
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: 20 }}>{pct}%</div>
+      </div>
+
+      {breakdown.length > 1 && (
+        <div className="card" style={{ marginBottom: 32 }}>
+          {breakdown.map((b, i) => (
+            <div key={b.level} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingTop: i > 0 ? 12 : 0,
+              marginTop: i > 0 ? 12 : 0,
+              borderTop: i > 0 ? '1px solid var(--border)' : 'none',
+            }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>HSK {b.level}</span>
+              <span style={{ color: 'var(--text-primary)', fontSize: 14, fontWeight: 500 }}>
+                {b.correct}/{b.total}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button className="btn-outline" onClick={onHome} style={{ flex: 1, padding: '14px', fontSize: 15 }}>
+          回家 Home
+        </button>
+        <button className="btn-cta" onClick={onAgain} style={{ flex: 1 }}>
+          再来一次 Again
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen]               = useState('home');
+  const [filter, setFilterState]          = useState(() => loadFilter());
+  const [sessionLength, setSessionLenState] = useState(() => loadSessionLength());
+  const [progress, setProgress]           = useState(() => loadProgress());
+  const [queue, setQueue]                 = useState([]);
+  const [idx, setIdx]                     = useState(0);
+  const [sessionResults, setSessionResults] = useState([]);
+
+  function setFilter(f) {
+    const next = typeof f === 'function' ? f(filter) : f;
+    setFilterState(next);
+    saveFilter(next);
+  }
+
+  function setSessionLength(l) {
+    setSessionLenState(l);
+    saveSessionLength(l);
+  }
+
+  function startSession() {
+    const q = buildSession(filter, sessionLength, progress);
+    setQueue(q);
+    setIdx(0);
+    setSessionResults([]);
+    setScreen('study');
+  }
+
+  const handleGrade = useCallback((id, correct) => {
+    setProgress(prev => {
+      const rec = prev[id] || { correct: 0, missed: 0, lastSeen: 0, streak: 0 };
+      const next = {
+        ...prev,
+        [id]: {
+          correct: rec.correct + (correct ? 1 : 0),
+          missed:  rec.missed  + (correct ? 0 : 1),
+          lastSeen: Date.now(),
+          streak: correct ? rec.streak + 1 : 0,
+        },
+      };
+      saveProgress(next);
+      return next;
+    });
+    setSessionResults(prev => {
+      const next = [...prev, { id, correct }];
+      if (idx + 1 >= queue.length) {
+        setTimeout(() => setScreen('summary'), 0);
+      } else {
+        setIdx(i => i + 1);
+      }
+      return next;
+    });
+  }, [idx, queue.length]);
+
+  return (
+    <>
+      {screen === 'home' && (
+        <HomeScreen
+          onStart={startSession}
+          filter={filter}
+          setFilter={setFilter}
+          sessionLength={sessionLength}
+          setSessionLength={setSessionLength}
+          progress={progress}
+        />
+      )}
+      {screen === 'study' && queue.length > 0 && (
+        <StudyScreen
+          queue={queue}
+          idx={idx}
+          onGrade={handleGrade}
+        />
+      )}
+      {screen === 'summary' && (
+        <SummaryScreen
+          sessionResults={sessionResults}
+          onAgain={startSession}
+          onHome={() => setScreen('home')}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -511,7 +511,7 @@ function normalise(str) {
   return str
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/v/g, 'u')
     .replace(/[^a-z]/g, '');
 }

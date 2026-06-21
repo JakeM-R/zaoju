@@ -44,7 +44,8 @@
       background: var(--bg);
       color: var(--text-primary);
       font-family: var(--font-body);
-      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
       display: flex;
       justify-content: center;
     }
@@ -52,7 +53,8 @@
     #root {
       width: 100%;
       max-width: 480px;
-      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
       padding: 0 20px;
       display: flex;
       flex-direction: column;
@@ -512,12 +514,12 @@ function homeHTML() {
     </button>`;
   }).join('');
 
-  const cardStyle = `background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px`;
+  const cardStyle = `background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px`;
 
   return `
-    <div style="display:flex;flex-direction:column;flex:1;padding-bottom:40px">
+    <div style="display:flex;flex-direction:column;flex:1;padding-bottom:max(20px,env(safe-area-inset-bottom))">
 
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:220px;padding:40px 0 36px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:160px;padding:24px 0 36px">
         <div style="position:absolute;font-family:var(--font-chinese);font-weight:900;font-size:200px;line-height:1;color:rgba(165,30,23,0.07);pointer-events:none;user-select:none;transform:translateY(-10px)">造</div>
         <div style="font-family:var(--font-chinese);font-weight:900;font-size:88px;line-height:1;color:var(--text-primary);position:relative">造句</div>
         <div style="position:absolute;bottom:20px;font-size:11px;letter-spacing:4px;color:var(--text-secondary);text-transform:uppercase">Sentence Practice</div>
@@ -534,17 +536,17 @@ function homeHTML() {
           <div style="display:flex;gap:12px">${lenCols}</div>
         </div>
 
-        <button class="btn-cta" data-action="start"${available === 0 ? ' disabled' : ''} style="border-radius:18px;font-size:20px;font-weight:700;padding:17px;margin-bottom:12px">开始 Start</button>
+        <button class="btn-cta" data-action="start"${available === 0 ? ' disabled' : ''} style="border-radius:18px;font-size:20px;font-weight:700;padding:14px;margin-bottom:10px">开始 Start</button>
 
         <div style="display:flex;gap:12px">
-          <button data-action="navStats" style="flex:1;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:center;padding:16px 0">
+          <button data-action="navStats" style="flex:1;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:center;padding:13px 0">
             <div style="display:flex;align-items:flex-end;gap:3px;height:20px">
               <div style="width:5px;height:8px;border-radius:2px;background:var(--text-secondary)"></div>
               <div style="width:5px;height:13px;border-radius:2px;background:var(--text-secondary)"></div>
               <div style="width:5px;height:20px;border-radius:2px;background:var(--text-secondary)"></div>
             </div>
           </button>
-          <button data-action="navSentences" style="flex:2;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:16px 18px">
+          <button data-action="navSentences" style="flex:2;${cardStyle};border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:13px 16px">
             <span style="font-size:16px;color:var(--text-primary)">All sentences</span>
             <span style="font-size:18px;color:var(--text-secondary)">→</span>
           </button>

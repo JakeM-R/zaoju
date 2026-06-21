@@ -211,6 +211,33 @@
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .fade-in { animation: fadeIn 0.15s ease-out; }
+
+    .word-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 4px; }
+    .word-chip {
+      font-family: var(--font-chinese);
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: transparent;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.1s;
+    }
+    .word-chip.active { border-color: var(--accent2); color: var(--text-primary); background: var(--surface-raised); }
+    .word-chip.is-target { color: var(--text-tertiary); border-style: dashed; }
+    .word-chip.is-target.revealed { color: var(--accent-text); border-color: var(--accent); border-style: solid; }
+    .word-def {
+      background: var(--surface-raised);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
@@ -224,6 +251,7 @@ const CORPUS = [
     target:"高兴", targetPinyin:"gaoxing", targetPinyinFull:"gāoxìng",
     pinyin:"wǒ jīntiān hěn ___ 。", pinyinFull:"wǒ jīntiān hěn gāoxìng 。",
     english:"I'm very happy today.", hsk:1, note:null, tags:["emotion"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"今天",p:"jīntiān",e:"today"},{h:"很",p:"hěn",e:"very"},{h:"高兴",p:"gāoxìng",e:"happy; glad"}],
   },
   {
     id:"s002", sentence:"我很喜欢吃中国菜。", blanked:"我很___吃中国菜。",
@@ -231,6 +259,7 @@ const CORPUS = [
     pinyin:"wǒ hěn ___ chī zhōngguó cài 。", pinyinFull:"wǒ hěn xǐhuān chī zhōngguó cài 。",
     english:"I really like eating Chinese food.", hsk:1,
     note:"喜欢 = ongoing preference. 想 = want right now.", tags:["food"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"很",p:"hěn",e:"very"},{h:"喜欢",p:"xǐhuān",e:"to like"},{h:"吃",p:"chī",e:"to eat"},{h:"中国",p:"Zhōngguó",e:"China"},{h:"菜",p:"cài",e:"dish; food"}],
   },
   {
     id:"s003", sentence:"我昨天在超市买了很多东西。", blanked:"我昨天在超市___了很多东西。",
@@ -238,24 +267,28 @@ const CORPUS = [
     pinyin:"wǒ zuótiān zài chāoshì ___ le hěnduō dōngxi 。", pinyinFull:"wǒ zuótiān zài chāoshì mǎi le hěnduō dōngxi 。",
     english:"I bought a lot of things at the supermarket yesterday.", hsk:1,
     note:"买 = buy. 卖 = sell. Opposite directions — easy to confuse.", tags:["shopping"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"昨天",p:"zuótiān",e:"yesterday"},{h:"在",p:"zài",e:"at; in"},{h:"超市",p:"chāoshì",e:"supermarket"},{h:"买",p:"mǎi",e:"to buy"},{h:"了",p:"le",e:"(completed action)"},{h:"很多",p:"hěn duō",e:"a lot; many"},{h:"东西",p:"dōngxi",e:"things; stuff"}],
   },
   {
     id:"s004", sentence:"这个菜很好吃。", blanked:"这个菜很___。",
     target:"好吃", targetPinyin:"haochi", targetPinyinFull:"hǎochī",
     pinyin:"zhège cài hěn ___ 。", pinyinFull:"zhège cài hěn hǎochī 。",
     english:"This dish is delicious.", hsk:1, note:null, tags:["food"],
+    words:[{h:"这个",p:"zhège",e:"this"},{h:"菜",p:"cài",e:"dish; food"},{h:"很",p:"hěn",e:"very"},{h:"好吃",p:"hǎochī",e:"delicious"}],
   },
   {
     id:"s005", sentence:"我每天早上喝牛奶。", blanked:"我每天早上___牛奶。",
     target:"喝", targetPinyin:"he", targetPinyinFull:"hē",
     pinyin:"wǒ měitiān zǎoshang ___ niúnǎi 。", pinyinFull:"wǒ měitiān zǎoshang hē niúnǎi 。",
     english:"I drink milk every morning.", hsk:1, note:null, tags:["food"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"每天",p:"měitiān",e:"every day"},{h:"早上",p:"zǎoshang",e:"morning"},{h:"喝",p:"hē",e:"to drink"},{h:"牛奶",p:"niúnǎi",e:"milk"}],
   },
   {
     id:"s006", sentence:"他用中文说了很多话。", blanked:"他用中文___了很多话。",
     target:"说", targetPinyin:"shuo", targetPinyinFull:"shuō",
     pinyin:"tā yòng zhōngwén ___ le hěnduō huà 。", pinyinFull:"tā yòng zhōngwén shuō le hěnduō huà 。",
     english:"He said a lot in Chinese.", hsk:1, note:null, tags:["social"],
+    words:[{h:"他",p:"tā",e:"he; him"},{h:"用",p:"yòng",e:"using; with"},{h:"中文",p:"zhōngwén",e:"Chinese (language)"},{h:"说",p:"shuō",e:"to speak"},{h:"了",p:"le",e:"(completed action)"},{h:"很多",p:"hěn duō",e:"a lot; many"},{h:"话",p:"huà",e:"speech; words"}],
   },
   {
     id:"s007", sentence:"你认识那个人吗？", blanked:"你___那个人吗？",
@@ -263,6 +296,7 @@ const CORPUS = [
     pinyin:"nǐ ___ nàge rén ma ？", pinyinFull:"nǐ rènshi nàge rén ma ？",
     english:"Do you know that person?", hsk:1,
     note:"认识 = know (a person). 知道 = know (a fact).", tags:["social"],
+    words:[{h:"你",p:"nǐ",e:"you"},{h:"认识",p:"rènshi",e:"to know (a person)"},{h:"那个",p:"nàge",e:"that"},{h:"人",p:"rén",e:"person"},{h:"吗",p:"ma",e:"(question particle)"}],
   },
   // HSK 2
   {
@@ -271,12 +305,14 @@ const CORPUS = [
     pinyin:"zhèlǐ bù ___ chōuyān 。", pinyinFull:"zhèlǐ bù kěyǐ chōuyān 。",
     english:"You can't smoke here.", hsk:2,
     note:"可以 = permitted. 能 = physically able. Prohibition uses 不可以.", tags:["daily-life"],
+    words:[{h:"这里",p:"zhèlǐ",e:"here"},{h:"不",p:"bù",e:"not; no"},{h:"可以",p:"kěyǐ",e:"can; may"},{h:"抽烟",p:"chōuyān",e:"to smoke"}],
   },
   {
     id:"s009", sentence:"谢谢你帮助我。", blanked:"谢谢你___我。",
     target:"帮助", targetPinyin:"bangzhu", targetPinyinFull:"bāngzhù",
     pinyin:"xièxie nǐ ___ wǒ 。", pinyinFull:"xièxie nǐ bāngzhù wǒ 。",
     english:"Thank you for helping me.", hsk:2, note:null, tags:["social"],
+    words:[{h:"谢谢",p:"xièxie",e:"thank you"},{h:"你",p:"nǐ",e:"you"},{h:"帮助",p:"bāngzhù",e:"to help"},{h:"我",p:"wǒ",e:"I; me"}],
   },
   {
     id:"s010", sentence:"我觉得这个主意很好。", blanked:"我___这个主意很好。",
@@ -284,12 +320,14 @@ const CORPUS = [
     pinyin:"wǒ ___ zhège zhǔyi hěn hǎo 。", pinyinFull:"wǒ juéde zhège zhǔyi hěn hǎo 。",
     english:"I think this idea is great.", hsk:2,
     note:"觉得 = feel/think (personal). 认为 = consider/believe (stronger).", tags:["daily-life"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"觉得",p:"juéde",e:"to think; to feel"},{h:"这个",p:"zhège",e:"this"},{h:"主意",p:"zhǔyi",e:"idea; plan"},{h:"很",p:"hěn",e:"very"},{h:"好",p:"hǎo",e:"good"}],
   },
   {
     id:"s011", sentence:"你需要多少钱？", blanked:"你___多少钱？",
     target:"需要", targetPinyin:"xuyao", targetPinyinFull:"xūyào",
     pinyin:"nǐ ___ duōshǎo qián ？", pinyinFull:"nǐ xūyào duōshǎo qián ？",
     english:"How much money do you need?", hsk:2, note:null, tags:["shopping"],
+    words:[{h:"你",p:"nǐ",e:"you"},{h:"需要",p:"xūyào",e:"to need"},{h:"多少",p:"duōshǎo",e:"how much; how many"},{h:"钱",p:"qián",e:"money"}],
   },
   {
     id:"s012", sentence:"我给你打电话吧。", blanked:"我给你___吧。",
@@ -297,6 +335,7 @@ const CORPUS = [
     pinyin:"wǒ gěi nǐ ___ ba 。", pinyinFull:"wǒ gěi nǐ dǎ diànhuà ba 。",
     english:"I'll give you a call.", hsk:2,
     note:"打电话 = make a phone call. Fixed collocation — 打 doesn't change.", tags:["social"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"给",p:"gěi",e:"to give; for"},{h:"你",p:"nǐ",e:"you"},{h:"打电话",p:"dǎ diànhuà",e:"to make a phone call"},{h:"吧",p:"ba",e:"(suggestion particle)"}],
   },
   {
     id:"s013", sentence:"我在路上看见了他。", blanked:"我在路上___了他。",
@@ -304,6 +343,7 @@ const CORPUS = [
     pinyin:"wǒ zài lùshang ___ le tā 。", pinyinFull:"wǒ zài lùshang kànjiàn le tā 。",
     english:"I spotted him on the street.", hsk:2,
     note:"看见 = to catch sight of (result). 看 = to look (action).", tags:["daily-life"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"在",p:"zài",e:"on; at"},{h:"路上",p:"lùshang",e:"on the road; on the way"},{h:"看见",p:"kànjiàn",e:"to see; to spot"},{h:"了",p:"le",e:"(completed action)"},{h:"他",p:"tā",e:"he; him"}],
   },
   // HSK 3
   {
@@ -311,18 +351,21 @@ const CORPUS = [
     target:"担心", targetPinyin:"danxin", targetPinyinFull:"dānxīn",
     pinyin:"nǐ bùyòng ___ zhè jiàn shì 。", pinyinFull:"nǐ bùyòng dānxīn zhè jiàn shì 。",
     english:"You don't need to worry about this.", hsk:3, note:null, tags:["emotion"],
+    words:[{h:"你",p:"nǐ",e:"you"},{h:"不用",p:"bùyòng",e:"no need to"},{h:"担心",p:"dānxīn",e:"to worry"},{h:"这件事",p:"zhè jiàn shì",e:"this matter"}],
   },
   {
     id:"s015", sentence:"住在这里很方便。", blanked:"住在这里很___。",
     target:"方便", targetPinyin:"fangbian", targetPinyinFull:"fāngbiàn",
     pinyin:"zhù zài zhèlǐ hěn ___ 。", pinyinFull:"zhù zài zhèlǐ hěn fāngbiàn 。",
     english:"Living here is very convenient.", hsk:3, note:null, tags:["home"],
+    words:[{h:"住",p:"zhù",e:"to live; to stay"},{h:"在",p:"zài",e:"at; in"},{h:"这里",p:"zhèlǐ",e:"here"},{h:"很",p:"hěn",e:"very"},{h:"方便",p:"fāngbiàn",e:"convenient"}],
   },
   {
     id:"s016", sentence:"这个问题我们一起解决吧。", blanked:"这个问题我们一起___吧。",
     target:"解决", targetPinyin:"jiejue", targetPinyinFull:"jiějué",
     pinyin:"zhège wèntí wǒmen yīqǐ ___ ba 。", pinyinFull:"zhège wèntí wǒmen yīqǐ jiějué ba 。",
     english:"Let's solve this problem together.", hsk:3, note:null, tags:["work"],
+    words:[{h:"这个",p:"zhège",e:"this"},{h:"问题",p:"wèntí",e:"problem; question"},{h:"我们",p:"wǒmen",e:"we; us"},{h:"一起",p:"yīqǐ",e:"together"},{h:"解决",p:"jiějué",e:"to solve; to resolve"},{h:"吧",p:"ba",e:"(suggestion particle)"}],
   },
   {
     id:"s017", sentence:"他发现自己忘带钱包了。", blanked:"他___自己忘带钱包了。",
@@ -330,12 +373,14 @@ const CORPUS = [
     pinyin:"tā ___ zìjǐ wàng dài qiánbāo le 。", pinyinFull:"tā fāxiàn zìjǐ wàng dài qiánbāo le 。",
     english:"He realized he'd forgotten his wallet.", hsk:3,
     note:"发现 = discover/realize. 找到 = find (locate something).", tags:["daily-life"],
+    words:[{h:"他",p:"tā",e:"he; him"},{h:"发现",p:"fāxiàn",e:"to discover; to realize"},{h:"自己",p:"zìjǐ",e:"oneself"},{h:"忘",p:"wàng",e:"to forget"},{h:"带",p:"dài",e:"to bring; to carry"},{h:"钱包",p:"qiánbāo",e:"wallet; purse"},{h:"了",p:"le",e:"(change of state)"}],
   },
   {
     id:"s018", sentence:"这件事有点儿麻烦。", blanked:"这件事有点儿___。",
     target:"麻烦", targetPinyin:"mafan", targetPinyinFull:"máfan",
     pinyin:"zhè jiàn shì yǒudiǎnr ___ 。", pinyinFull:"zhè jiàn shì yǒudiǎnr máfan 。",
     english:"This matter is a bit troublesome.", hsk:3, note:null, tags:["daily-life"],
+    words:[{h:"这件事",p:"zhè jiàn shì",e:"this matter"},{h:"有点儿",p:"yǒudiǎnr",e:"a bit; somewhat"},{h:"麻烦",p:"máfan",e:"troublesome; hassle"}],
   },
   {
     id:"s019", sentence:"你一定要好好学习。", blanked:"你___要好好学习。",
@@ -343,6 +388,7 @@ const CORPUS = [
     pinyin:"nǐ ___ yào hǎohǎo xuéxí 。", pinyinFull:"nǐ yīdìng yào hǎohǎo xuéxí 。",
     english:"You must study hard.", hsk:3,
     note:"一定 = definitely/must (expectation). 必须 = must (obligation).", tags:["study"],
+    words:[{h:"你",p:"nǐ",e:"you"},{h:"一定",p:"yīdìng",e:"must; definitely"},{h:"要",p:"yào",e:"need to; want to"},{h:"好好",p:"hǎohǎo",e:"properly; hard"},{h:"学习",p:"xuéxí",e:"to study; to learn"}],
   },
   {
     id:"s020", sentence:"我还没明白他说的意思。", blanked:"我还没___他说的意思。",
@@ -350,6 +396,7 @@ const CORPUS = [
     pinyin:"wǒ hái méi ___ tā shuō de yìsi 。", pinyinFull:"wǒ hái méi míngbai tā shuō de yìsi 。",
     english:"I still don't understand what he meant.", hsk:3,
     note:"明白 = understand (meaning). 听懂 = understand (by hearing).", tags:["study"],
+    words:[{h:"我",p:"wǒ",e:"I; me"},{h:"还",p:"hái",e:"still; yet"},{h:"没",p:"méi",e:"not (have); haven't"},{h:"明白",p:"míngbai",e:"to understand"},{h:"他",p:"tā",e:"he; him"},{h:"说",p:"shuō",e:"said"},{h:"的",p:"de",e:"(structural particle)"},{h:"意思",p:"yìsi",e:"meaning; idea"}],
   },
 ];
 
@@ -415,6 +462,7 @@ const state = {
   matchResult: false,
   checkedInput: '',
   sessionResults: [],
+  wordPopup: null,
 };
 
 function currentEntry() {
@@ -510,12 +558,33 @@ function studyHTML() {
       <button class="btn-outline" data-action="check" style="white-space:nowrap;flex-shrink:0">Check</button>
     </div>`;
 
+  const words = entry.words || [];
+  const activeWord = state.wordPopup !== null ? words[state.wordPopup] : null;
+  const chipsHTML = words.length ? `
+    <div class="divider"></div>
+    <div class="word-row">
+      ${words.map((w, i) => {
+        const isTarget = w.h === entry.target;
+        const isActive = state.wordPopup === i;
+        const label = isTarget && !state.revealed ? '___' : esc(w.h);
+        const cls = `word-chip${isTarget ? ' is-target' + (state.revealed ? ' revealed' : '') : ''}${isActive ? ' active' : ''}`;
+        return `<button class="${cls}" data-action="wordTap" data-widx="${i}">${label}</button>`;
+      }).join('')}
+    </div>
+    ${activeWord ? `<div class="word-def fade-in">
+      <span style="font-family:var(--font-chinese);font-size:20px;color:var(--text-primary)">${esc(activeWord.h)}</span>
+      <span style="color:var(--accent2);font-size:13px">${esc(activeWord.p)}</span>
+      <span style="color:var(--text-secondary);font-size:13px">${esc(activeWord.e)}</span>
+    </div>` : ''}` : '';
+
   return `
     <div style="display:flex;flex-direction:column;flex:1;padding:20px 0 48px">
       <div style="text-align:right;color:var(--text-tertiary);font-size:13px;font-weight:500;margin-bottom:20px">${state.idx + 1} / ${state.queue.length}</div>
       <div class="card">
         <div style="margin-bottom:10px;line-height:1.9">${pinyin}</div>
-        <div style="margin-bottom:24px;line-height:1.6">${hanzi}</div>
+        <div style="margin-bottom:0;line-height:1.6">${hanzi}</div>
+        ${chipsHTML}
+        <div class="divider"></div>
         ${body}
       </div>
     </div>`;
@@ -573,6 +642,7 @@ function render() {
 root.addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
   if (el) dispatch(el.dataset.action, el.dataset);
+  else if (state.wordPopup !== null) { state.wordPopup = null; render(); }
 });
 
 root.addEventListener('input', e => {
@@ -607,7 +677,7 @@ function dispatch(action, data = {}) {
     case 'start':
     case 'again': {
       state.queue = buildSession(state.filter, state.sessionLength, state.progress);
-      state.idx = 0; state.input = ''; state.revealed = false; state.sessionResults = [];
+      state.idx = 0; state.input = ''; state.revealed = false; state.sessionResults = []; state.wordPopup = null;
       state.screen = 'study';
       render();
       break;
@@ -632,11 +702,18 @@ function dispatch(action, data = {}) {
       };
       saveProgress(state.progress);
       state.sessionResults.push({ id: entry.id, correct });
+      state.wordPopup = null;
       if (state.idx + 1 >= state.queue.length) {
         state.screen = 'summary';
       } else {
         state.idx++; state.input = ''; state.revealed = false;
       }
+      render();
+      break;
+    }
+    case 'wordTap': {
+      const wi = +data.widx;
+      state.wordPopup = state.wordPopup === wi ? null : wi;
       render();
       break;
     }
